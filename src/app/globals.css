@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  /* ── Dynamic brand color ──────────────────────────────────────────────
+     ThemeProvider overrides --primary at runtime via a <style> tag.
+     @theme inline references var(--primary), so Tailwind generates classes
+     like `bg-primary { background-color: var(--color-primary) }` which
+     resolves through this bridge — making every primary class dynamic.
+  */
+  --primary: #0df20d;
+  /* default neon green */
+  --primary-rgb: 13, 242, 13;
+  --color-primary-rgb: 13, 242, 13;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Caruma Marketing Theme — primary color bridges to --primary so it's runtime-overridable */
+  --color-primary: var(--primary);
+  --color-background-light: #f5f8f5;
+  --color-background-dark: #050505;
+  --color-surface-dark: #121212;
+  --color-text-grey: #a0a0a0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ─── Marketing Utilities ─── */
+
+.glass-nav {
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(13, 242, 13, 0.3);
+  transition: all 0.3s ease;
+}
+
+.neon-glow:hover {
+  box-shadow: 0 0 30px rgba(13, 242, 13, 0.5);
+  transform: translateY(-2px);
+}
+
+.bento-card {
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.bento-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.grid-bg {
+  background-image: linear-gradient(to right,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px),
+    linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+}
+
+/* ─── Dashboard Utilities ─── */
+
+.bg-grid-pattern-dark {
+  background-image: linear-gradient(to right, #333 1px, transparent 1px),
+    linear-gradient(to bottom, #333 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.4);
+}
+
+.shadow-glow-sm {
+  box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.3);
+}
+
+/* Custom Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Global Scope for legacy references */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
