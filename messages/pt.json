@@ -97,7 +97,13 @@
         "searchPlaceholder": "Pesquisar transações...",
         "notifications": "Notificações",
         "welcomeNewUser": "Bem-vindo! Estamos felizes em ter você aqui.",
-        "noNewNotifications": "Nenhuma outra notificação."
+        "noNewNotifications": "Você está em dia!",
+        "noUnread": "Nenhuma notificação não lida.",
+        "markAllRead": "Marcar todas como lidas",
+        "clearRead": "Limpar lidas",
+        "tabAll": "Todas",
+        "tabUnread": "Não lidas",
+        "viewAll": "Ver todas as notificações"
     },
     "DashboardStats": {
         "totalRevenue": "Receita Total",

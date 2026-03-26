@@ -97,7 +97,13 @@
         "searchPlaceholder": "Search transactions...",
         "notifications": "Notifications",
         "welcomeNewUser": "Welcome! We're glad to have you here.",
-        "noNewNotifications": "No other notifications."
+        "noNewNotifications": "You're all caught up!",
+        "noUnread": "No unread notifications.",
+        "markAllRead": "Mark all read",
+        "clearRead": "Clear read",
+        "tabAll": "All",
+        "tabUnread": "Unread",
+        "viewAll": "View all notifications"
     },
     "DashboardStats": {
         "totalRevenue": "Total Revenue",

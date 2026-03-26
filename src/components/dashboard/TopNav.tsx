@@ -3,9 +3,16 @@
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher";
 import { NotificationsPanel } from "./NotificationsPanel";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useState, useEffect } from "react";
 
-export function TopNav({ title }: { title: string }) {
+interface TopNavProps {
+    title: string;
+    /** The authenticated user's Convex userId (or null while loading). */
+    userId?: string | null;
+}
+
+export function TopNav({ title, userId }: TopNavProps) {
     const t = useTranslations("DashboardTopNav");
     const [isMobile, setIsMobile] = useState(false);
 
@@ -15,6 +22,16 @@ export function TopNav({ title }: { title: string }) {
         window.addEventListener("resize", check);
         return () => window.removeEventListener("resize", check);
     }, []);
+
+    const {
+        notifications,
+        unreadCount,
+        isLoading,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        clearAllRead,
+    } = useNotifications({ userId: userId ?? null });
 
     return (
         <header
@@ -50,7 +67,15 @@ export function TopNav({ title }: { title: string }) {
                     )}
 
                     {/* Notifications */}
-                    <NotificationsPanel />
+                    <NotificationsPanel
+                        notifications={notifications}
+                        unreadCount={unreadCount}
+                        isLoading={isLoading}
+                        onMarkAsRead={markAsRead}
+                        onMarkAllAsRead={markAllAsRead}
+                        onDelete={deleteNotification}
+                        onClearAllRead={clearAllRead}
+                    />
 
                     {/* Language Switcher */}
                     <div style={{ borderLeft: "1px solid rgba(255,255,255,0.05)", paddingLeft: isMobile ? "8px" : "16px", marginLeft: "4px" }}>
