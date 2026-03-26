@@ -3,10 +3,15 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { TopNav, PspWarning } from "@/components/dashboard";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function AffiliatePortalPage() {
     const memberships = useQuery(api.memberships.getMyMemberships);
     const earnings = useQuery(api.transactions.getAffiliateEarnings);
+    const paymentStatus = useQuery(api.paymentsHelpers.getAffiliatePaymentStatus);
+    const params = useParams();
+    const domain = params.domain as string;
 
     // Dynamic base domain from env
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
@@ -20,11 +25,38 @@ export default function AffiliatePortalPage() {
     const totalEarnings = earnings ? (earnings.totalEarningsCents / 100).toFixed(2) : "0.00";
     const conversions = earnings?.conversions ?? 0;
 
+    // Onboarding check — nudge if incomplete
+    const hasPsp = paymentStatus?.connectedProviders?.some((p) => p.onboardingCompleted) ?? false;
+    const hasApproved = approvedCount > 0;
+    const onboardingComplete = hasPsp && hasApproved;
+
     return (
         <>
             <TopNav title="Partner Dashboard" />
             <div className="p-8 relative z-0 space-y-8 w-full">
                 <PspWarning type="affiliate" />
+
+                {/* Onboarding nudge banner */}
+                {!onboardingComplete && memberships !== undefined && (
+                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="material-icons text-primary text-xl">rocket_launch</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-white text-sm font-bold">Complete your onboarding</p>
+                            <p className="text-text-grey text-xs mt-0.5">
+                                {!hasPsp && "Connect a payment provider to start receiving commissions. "}
+                                {!hasApproved && "Wait for a seller to approve your partnership request."}
+                            </p>
+                        </div>
+                        <Link
+                            href={`/app/${domain}/portal/settings`}
+                            className="px-4 py-2 rounded-lg bg-primary text-black text-xs font-bold hover:bg-primary/90 transition-all active:scale-95"
+                        >
+                            View Settings
+                        </Link>
+                    </div>
+                )}
 
 
                 {/* Stats Cards */}

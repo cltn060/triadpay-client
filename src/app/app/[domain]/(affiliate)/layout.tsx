@@ -22,9 +22,17 @@ export default async function AffiliateLayout({
         redirect("/seller");
     }
 
+    // Check if this is a fresh affiliate who hasnt completed onboarding
+    // If they have no metadata.onboardingSeen flag, they'll get nudged
+    // via the portal overview page banner and settings page
+    const onboardingSeen = user?.unsafeMetadata?.onboardingSeen as boolean | undefined;
+
     return (
         <MembershipGate storeSlug={domain}>
-            <DashboardShell sidebar={<AffiliateSidebar />}>
+            <DashboardShell
+                sidebar={<AffiliateSidebar />}
+                data-onboarding={!onboardingSeen ? "pending" : "complete"}
+            >
                 {children}
             </DashboardShell>
         </MembershipGate>

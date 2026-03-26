@@ -193,8 +193,8 @@ export default function MyLinksPage() {
                                     </div>
                                 </div>
 
-                                {/* ─── PSP Warning Banner ─── */}
-                                {!selectedGroup.products[0]?.sellerHasPsp && (
+                                {/* ─── PSP Warning / Link Status Banner ─── */}
+                                {!selectedGroup.products[0]?.sellerHasPsp ? (
                                     <div
                                         className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6 border"
                                         style={{
@@ -215,6 +215,36 @@ export default function MyLinksPage() {
                                             <p className="text-xs text-slate-500 mt-0.5">
                                                 This seller hasn&apos;t connected a payment provider. Your links will start working once they do.
                                             </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6 border"
+                                        style={{
+                                            background: "rgba(13, 242, 13, 0.04)",
+                                            borderColor: "rgba(13, 242, 13, 0.15)",
+                                        }}
+                                    >
+                                        <span
+                                            className="material-symbols-outlined text-2xl shrink-0"
+                                            style={{ color: "#0df20d" }}
+                                        >
+                                            check_circle
+                                        </span>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-semibold" style={{ color: "#0df20d" }}>
+                                                Links are now functional
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-0.5">
+                                                This seller has a payment provider connected. Clicks on your links will track and convert.
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            <span className="relative flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0df20d] opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0df20d]"></span>
+                                            </span>
+                                            <span className="text-[10px] font-bold text-[#0df20d] uppercase tracking-wider">Live</span>
                                         </div>
                                     </div>
                                 )}

@@ -13,7 +13,7 @@ const navItems = [
     { label: "My Links", icon: "link", href: "/portal/links" },
     { label: "Payments", icon: "account_balance", href: "/portal/payments" },
     { label: "Earnings", icon: "payments", href: "/portal/earnings" },
-    { label: "Settings", icon: "settings", href: "/portal/settings" },
+    { label: "Settings", icon: "settings", href: "/portal/settings", showBadge: true },
 ];
 
 export function AffiliateSidebar() {
@@ -27,6 +27,11 @@ export function AffiliateSidebar() {
         api.stores.getLogoUrl,
         store?._id ? { storeId: store._id } : "skip"
     );
+    const paymentStatus = useQuery(api.paymentsHelpers.getAffiliatePaymentStatus);
+
+    // Check if onboarding needs attention
+    const needsOnboardingAttention = paymentStatus !== undefined &&
+        !paymentStatus?.connectedProviders?.some((p: { onboardingCompleted: boolean }) => p.onboardingCompleted);
 
     const storeName = store?.name ?? "Partner Hub";
     const initials = storeName.charAt(0).toUpperCase();
@@ -93,7 +98,13 @@ export function AffiliateSidebar() {
                                 >
                                     {item.icon}
                                 </span>
-                                <span className="font-medium text-sm">{item.label}</span>
+                                <span className="font-medium text-sm flex-1">{item.label}</span>
+                                {(item as any).showBadge && needsOnboardingAttention && (
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}
