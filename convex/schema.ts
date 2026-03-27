@@ -24,3 +24,16 @@ export default defineSchema({
         .index("by_user", ["userId"])
         .index("by_user_read", ["userId", "read"]),
 });
+
+    customDomains: defineTable({
+        ownerId: v.string(),
+        domain: v.string(),
+        verified: v.boolean(),
+        dnsRecord: v.optional(v.string()),
+        primaryForStoreId: v.optional(v.string()),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number()),
+    })
+        .index("by_owner", ["ownerId"]) 
+        .index("by_domain", ["domain"])
+        .index("by_store_primary", ["primaryForStoreId"]),
