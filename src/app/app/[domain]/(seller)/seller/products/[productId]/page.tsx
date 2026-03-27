@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../../../convex/_generated/dataModel";
 import { TopNav, AffiliateManagerDrawer, StripeLogo, MercadoPagoLogo, ProductDrawer } from "@/components/dashboard";
+import { formatMoney } from "@/lib/currency";
 import { useDragScroll } from "@/hooks/useDragScroll";
 
 // Platform metadata for icons and labels
@@ -23,7 +24,7 @@ function getPlatform(slug: string | null) {
 }
 
 function formatCents(cents: number) {
-    return `$${(cents / 100).toFixed(2)}`;
+    return formatMoney(cents, "USD");
 }
 
 function timeAgo(timestamp: number) {

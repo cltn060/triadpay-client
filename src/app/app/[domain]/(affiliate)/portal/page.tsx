@@ -22,7 +22,8 @@ export default function AffiliatePortalPage() {
     const pendingCount = memberships?.filter((m) => m.status === "PENDING").length ?? 0;
 
     // Earnings data
-    const totalEarnings = earnings ? (earnings.totalEarningsCents / 100).toFixed(2) : "0.00";
+    import { formatMoney } from "@/lib/currency";
+    const totalEarnings = earnings ? formatMoney(earnings.totalEarningsCents, "USD") : "$0.00";
     const conversions = earnings?.conversions ?? 0;
 
     // Onboarding check — nudge if incomplete
@@ -98,7 +99,7 @@ export default function AffiliatePortalPage() {
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <p className="text-text-grey text-sm font-medium mb-1">Total Earnings</p>
-                                <h3 className="text-3xl font-bold text-white tracking-tight">${totalEarnings}</h3>
+                                <h3 className="text-3xl font-bold text-white tracking-tight">{totalEarnings}</h3>
                             </div>
                             <div className="bg-primary/10 p-2 rounded-full">
                                 <span className="material-icons text-primary text-xl">payments</span>

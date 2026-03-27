@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { formatMoneyCompact } from "@/lib/currency";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
@@ -44,7 +45,7 @@ export function VolumeChart() {
         const maxBucket = Math.max(...buckets, 1);
         const data = buckets.map(amountCents => ({
             value: Math.max((amountCents / maxBucket) * 100, amountCents > 0 ? 5 : 0),
-            label: amountCents > 0 ? `$${(amountCents / 100).toLocaleString("en-US", { notation: "compact", maximumFractionDigits: 1 })}` : "$0",
+            label: amountCents > 0 ? formatMoneyCompact(amountCents, "USD") : "$0",
         }));
 
         // Generate 4 X-axis labels

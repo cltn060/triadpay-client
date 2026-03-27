@@ -8,8 +8,9 @@ import { TopNav } from "@/components/dashboard";
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function fmt(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+        return formatMoney(cents, "USD");
 }
+import { formatMoney } from "@/lib/currency";
 
 function formatDate(ts?: number) {
     if (!ts) return "—";

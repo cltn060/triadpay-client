@@ -3,10 +3,11 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../../convex/_generated/api";
 import { TopNav } from "@/components/dashboard/TopNav";
+import { formatMoney } from "@/lib/currency";
 import { useStoreContext } from "@/providers/store-context";
 
 function formatCents(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 const STATUS_STYLES: Record<string, string> = {

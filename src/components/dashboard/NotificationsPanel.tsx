@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { formatMoney } from "@/lib/currency";
 import { useTranslations } from "next-intl";
 import type { Notification, NotificationType } from "@/types/notifications";
 
@@ -111,8 +112,14 @@ function NotificationItem({ notification, onRead, onDelete }: NotificationItemPr
                     <div className="flex items-center gap-1 mt-1.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-[10px] font-medium">
                             <span className="material-icons text-[10px]">attach_money</span>
-                            {notification.metadata.currency ?? "USD"}{" "}
-                            {notification.metadata.amount.toLocaleString()}
+                            {
+                                (() => {
+                                    const raw = notification.metadata?.amount ?? 0;
+                                    const currency = notification.metadata?.currency ?? "USD";
+                                    const amountCents = raw > 10000 ? Number(raw) : Math.round(Number(raw) * 100);
+                                    return formatMoney(amountCents, currency);
+                                })()
+                            }
                         </span>
                     </div>
                 )}

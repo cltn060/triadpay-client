@@ -6,8 +6,10 @@ import { TopNav } from "@/components/dashboard/TopNav";
 import { useStoreContext } from "@/providers/store-context";
 import Image from "next/image";
 
+import { formatMoney } from "@/lib/currency";
+
 function formatCents(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 export default function WLProductsPage() {

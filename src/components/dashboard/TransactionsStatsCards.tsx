@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { formatMoney } from "@/lib/currency";
 
 interface TransactionsStatsCardsProps {
     stats: {
@@ -65,7 +66,7 @@ export function TransactionsStatsCards({ stats }: TransactionsStatsCardsProps) {
                         <div className="text-right">
                             <p className="text-text-grey text-xs font-bold uppercase tracking-widest">{t("totalRevenue")}</p>
                             <h3 className="text-2xl font-bold text-white mt-1">
-                                ${(stats.totalRevenueCents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                                {formatMoney(stats.totalRevenueCents, "USD")}
                             </h3>
                         </div>
                     </div>
@@ -73,7 +74,7 @@ export function TransactionsStatsCards({ stats }: TransactionsStatsCardsProps) {
                         <div className="flex justify-between items-center text-xs">
                             <span className="text-text-grey capitalize">{t("awaitingSettlement")}</span>
                             <span className="text-white font-bold">
-                                ${(stats.awaitingSettlementCents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                                {formatMoney(stats.awaitingSettlementCents, "USD")}
                             </span>
                         </div>
                     </div>

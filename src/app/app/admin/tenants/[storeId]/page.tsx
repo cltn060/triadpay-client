@@ -4,10 +4,11 @@ import { useQuery, useMutation } from "convex/react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "../../../../../../convex/_generated/api";
+import { formatMoney } from "@/lib/currency";
 import { useState } from "react";
 
 function formatCents(cents: number): string {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 const STATUS_STYLES: Record<string, string> = {

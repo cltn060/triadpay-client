@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { api } from "../../../../../../../convex/_generated/api";
 import { TopNav } from "@/components/dashboard";
 import { cn } from "@/lib/utils";
+import { formatMoney } from "@/lib/currency";
 
 // ─── Status Badge ───────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ function PSPBadge({ provider }: { provider: string }) {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function fmt(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 function formatDate(ts?: number) {

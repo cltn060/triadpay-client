@@ -4,9 +4,10 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useTranslations } from "next-intl";
 import React, { useRef, useState } from "react";
+import { formatMoney } from "@/lib/currency";
 
 function fmt(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 function Skeleton({ className }: { className?: string }) {

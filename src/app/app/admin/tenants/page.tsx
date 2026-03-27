@@ -2,11 +2,12 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
+import { formatMoney } from "@/lib/currency";
 import Link from "next/link";
 import { useState } from "react";
 
 function formatCents(cents: number): string {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 export default function TenantsPage() {

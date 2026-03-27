@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { formatMoney } from "@/lib/currency";
 
 function StatCard({ label, value, subValue, icon }: {
     label: string;
@@ -24,7 +25,7 @@ function StatCard({ label, value, subValue, icon }: {
 }
 
 function formatCents(cents: number): string {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 export default function AdminOverviewPage() {

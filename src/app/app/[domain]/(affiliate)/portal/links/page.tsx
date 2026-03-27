@@ -166,7 +166,7 @@ export default function MyLinksPage() {
                                         </div>
 
                                         {isActive && stats.earnings > 0 && (
-                                            <span className="text-xs font-bold text-primary">${(stats.earnings / 100).toFixed(0)}</span>
+                                            <span className="text-xs font-bold text-primary">{formatMoney(Math.round(stats.earnings), "USD")}</span>
                                         )}
                                     </button>
                                 );

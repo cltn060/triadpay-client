@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatMoney } from "@/lib/currency";
 import { StripeLogo, MercadoPagoLogo } from "./PaymentLogos";
 import { useTranslations } from "next-intl";
 
@@ -29,7 +30,7 @@ interface TransactionsLedgerTableProps {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function formatCents(cents: number) {
-    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return formatMoney(cents, "USD");
 }
 
 function formatDate(ts: number) {
