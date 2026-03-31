@@ -3,6 +3,7 @@ export type PaymentIntent = {
   amount: number
   currency: string
   status: string
+  metadata?: Record<string, any>
 }
 
 export interface PaymentAdapter {
