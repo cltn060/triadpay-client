@@ -7,6 +7,7 @@ import { useState, useRef, useEffect, useTransition } from "react";
 const LANGUAGES = [
     { code: "en", label: "EN" },
     { code: "pt", label: "PT" },
+    { code: "fr", label: "FR" },
 ];
 
 /**

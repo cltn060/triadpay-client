@@ -5,6 +5,7 @@ import { api } from "../../../../../../convex/_generated/api";
 import { TopNav } from "@/components/dashboard/TopNav";
 import { formatMoney } from "@/lib/currency";
 import { useStoreContext } from "@/providers/store-context";
+import { useTranslations } from "next-intl";
 
 function StatCard({
     label,
@@ -34,6 +35,7 @@ function formatCents(cents: number) {
 }
 
 export default function WLOwnerOverviewPage() {
+    const t = useTranslations("WLOwnerDashboard.Overview");
     const { store } = useStoreContext();
     const stats = useQuery(
         api.wlOwnerQueries.getStoreStats,
@@ -42,34 +44,34 @@ export default function WLOwnerOverviewPage() {
 
     return (
         <>
-            <TopNav title="Overview" />
+            <TopNav title={t("title")} />
             <div className="p-8 relative z-0 space-y-8 w-full">
 
                 {/* KPI Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                     <StatCard
-                        label="Total Revenue"
+                        label={t("totalRevenue")}
                         value={stats ? formatCents(stats.totalRevenueCents) : "—"}
                         icon="attach_money"
-                        sub="Across all sellers"
+                        sub={t("acrossAllSellers")}
                     />
                     <StatCard
-                        label="Your Earnings"
+                        label={t("yourEarnings")}
                         value={stats ? formatCents(stats.totalWlEarningsCents) : "—"}
                         icon="account_balance_wallet"
-                        sub="WL Owner fees collected"
+                        sub={t("wlOwnerFeesCollected")}
                     />
                     <StatCard
-                        label="Active Sellers"
+                        label={t("activeSellers")}
                         value={stats ? `${stats.activeSellers}` : "—"}
                         icon="storefront"
-                        sub={stats?.pendingSellers ? `${stats.pendingSellers} pending approval` : undefined}
+                        sub={stats?.pendingSellers ? `${stats.pendingSellers} ${t("pendingApproval")}` : undefined}
                     />
                     <StatCard
-                        label="Transactions"
+                        label={t("transactions")}
                         value={stats ? stats.totalTransactions : "—"}
                         icon="receipt_long"
-                        sub="All time"
+                        sub={t("allTime")}
                     />
                 </div>
 
@@ -78,10 +80,10 @@ export default function WLOwnerOverviewPage() {
                     <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 flex items-center gap-4">
                         <span className="material-icons text-yellow-400 text-[28px]">warning</span>
                         <div>
-                            <p className="text-white font-semibold">Payment provider not connected</p>
+                            <p className="text-white font-semibold">{t("pspNotConnectedTitle")}</p>
                             <p className="text-sm text-text-grey mt-0.5">
-                                Your sellers cannot accept payments until you connect Stripe.{" "}
-                                <a href="/dashboard/settings" className="text-primary underline">Go to Settings →</a>
+                                {t("pspNotConnectedDesc")}
+                                <a href="/dashboard/settings" className="text-primary underline">{t("goToSettings")}</a>
                             </p>
                         </div>
                     </div>
@@ -92,10 +94,10 @@ export default function WLOwnerOverviewPage() {
                     <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 flex items-center gap-4">
                         <span className="material-icons text-yellow-400 text-[28px]">pending</span>
                         <div>
-                            <p className="text-white font-semibold">Complete your Stripe setup</p>
+                            <p className="text-white font-semibold">{t("pspPendingTitle")}</p>
                             <p className="text-sm text-text-grey mt-0.5">
-                                Your Stripe account needs to be verified before you can accept payments.{" "}
-                                <a href="/dashboard/settings" className="text-primary underline">Go to Settings →</a>
+                                {t("pspPendingDesc")}
+                                <a href="/dashboard/settings" className="text-primary underline">{t("goToSettings")}</a>
                             </p>
                         </div>
                     </div>
@@ -106,9 +108,9 @@ export default function WLOwnerOverviewPage() {
                     <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5 flex items-center gap-4">
                         <span className="material-icons text-green-400 text-[28px]">check_circle</span>
                         <div>
-                            <p className="text-white font-semibold">Stripe connected</p>
+                            <p className="text-white font-semibold">{t("pspConnectedTitle")}</p>
                             <p className="text-sm text-text-grey mt-0.5">
-                                Your platform is active. Sellers can now accept payments.
+                                {t("pspConnectedDesc")}
                             </p>
                         </div>
                     </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SignOutButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -10,16 +11,17 @@ import { useStoreContext } from "@/providers/store-context";
 import { useSidebarClose } from "./DashboardShell";
 
 const navItems = [
-    { label: "Overview",     icon: "dashboard",               href: "/dashboard" },
-    { label: "Sellers",      icon: "storefront",              href: "/dashboard/sellers" },
-    { label: "Affiliates",   icon: "group",                   href: "/dashboard/affiliates" },
-    { label: "Products",     icon: "inventory_2",             href: "/dashboard/products" },
-    { label: "Transactions", icon: "receipt_long",            href: "/dashboard/transactions" },
-    { label: "Earnings",     icon: "account_balance_wallet",  href: "/dashboard/earnings" },
-    { label: "Settings",     icon: "settings",                href: "/dashboard/settings" },
+    { key: "overview",       icon: "dashboard",               href: "/dashboard" },
+    { key: "sellers",        icon: "storefront",              href: "/dashboard/sellers" },
+    { key: "affiliates",     icon: "group",                   href: "/dashboard/affiliates" },
+    { key: "products",       icon: "inventory_2",             href: "/dashboard/products" },
+    { key: "transactions",   icon: "receipt_long",            href: "/dashboard/transactions" },
+    { key: "earnings",       icon: "account_balance_wallet",  href: "/dashboard/earnings" },
+    { key: "settings",       icon: "settings",                href: "/dashboard/settings" },
 ];
 
 export function WLOwnerSidebar() {
+    const t = useTranslations("WLOwnerDashboard.Sidebar");
     const pathname = usePathname();
     const closeSidebar = useSidebarClose();
     const { store } = useStoreContext();
@@ -94,7 +96,7 @@ export function WLOwnerSidebar() {
                                 >
                                     {item.icon}
                                 </span>
-                                <span className="font-medium text-sm">{item.label}</span>
+                                <span className="font-medium text-sm">{(t as any)(item.key)}</span>
                             </Link>
                         );
                     })}
@@ -108,7 +110,7 @@ export function WLOwnerSidebar() {
                 </div>
                 <div className="flex-1 overflow-hidden">
                     <p className="text-sm font-medium text-white truncate">{storeName}</p>
-                    <p className="text-xs text-text-grey truncate">Store Owner</p>
+                    <p className="text-xs text-text-grey truncate">{t("storeOwner")}</p>
                 </div>
                 <SignOutButton signOutOptions={{ redirectUrl: `${typeof window !== "undefined" ? window.location.protocol : "https:"}//${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000"}/` }}>
                     <button className="text-text-grey hover:text-white cursor-pointer" title="Sign out">
