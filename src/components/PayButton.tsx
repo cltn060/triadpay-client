@@ -19,8 +19,8 @@ export default function PayButton({ amount, currency = 'USD', psp }: Props) {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'payment create failed')
       setMessage(`Created intent ${data.intent.id} (status: ${data.intent.status})`)
-    } catch (err: any) {
-      setMessage(err.message || String(err))
+    } catch (err: unknown) {
+      setMessage(err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)
     }

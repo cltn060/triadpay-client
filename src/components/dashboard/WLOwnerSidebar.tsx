@@ -96,7 +96,7 @@ export function WLOwnerSidebar() {
                                 >
                                     {item.icon}
                                 </span>
-                                <span className="font-medium text-sm">{(t as any)(item.key)}</span>
+                                <span className="font-medium text-sm">{(t as unknown as (k: string) => string)(item.key)}</span>
                             </Link>
                         );
                     })}

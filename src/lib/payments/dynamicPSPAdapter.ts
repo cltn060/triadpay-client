@@ -33,26 +33,22 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
     this.adapters.set(type, adapter)
     this.circuitStates.set(type, CircuitState.CLOSED)
     this.failureCounts.set(type, 0)
-    console.log(`[DynamicPSPAdapter] Registered adapter for ${type}`)
   }
 
   public removeAdapter(type: PSPType): void {
     this.adapters.delete(type)
     this.circuitStates.delete(type)
     this.failureCounts.delete(type)
-    console.log(`[DynamicPSPAdapter] Removed adapter for ${type}`)
   }
 
   public addRoutingRule(rule: RoutingRule): void {
     this.routingRules.push(rule)
     // Keep sorted by priority descending
     this.routingRules.sort((a, b) => b.priority - a.priority)
-    console.log(`[DynamicPSPAdapter] Added routing rule: ${rule.id} (Priority: ${rule.priority})`)
   }
 
   public removeRoutingRule(ruleId: string): void {
     this.routingRules = this.routingRules.filter(r => r.id !== ruleId)
-    console.log(`[DynamicPSPAdapter] Removed routing rule: ${ruleId}`)
   }
 
   public getCircuitState(type: PSPType): CircuitState {
@@ -70,14 +66,12 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
       if (resetTime && Date.now() > resetTime) {
         // Time has elapsed, move to HALF_OPEN to test if service is back
         this.circuitStates.set(type, CircuitState.HALF_OPEN)
-        console.log(`[CircuitBreaker] State for ${type} changed from OPEN -> HALF_OPEN. Ready to test.`)
       }
     }
   }
 
   private recordSuccess(type: PSPType) {
     if (this.circuitStates.get(type) === CircuitState.HALF_OPEN) {
-      console.log(`[CircuitBreaker] Service test succeeded for ${type}. Resetting circuit to CLOSED.`)
       this.circuitStates.set(type, CircuitState.CLOSED)
     }
     this.failureCounts.set(type, 0) // Reset failure count on success
@@ -99,15 +93,12 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
    * Routing Logic
    */
   private determinePSP(context: RoutingContext): PSPType {
-    console.log(`[DynamicPSPAdapter] Evaluating routing for ${context.amount} ${context.currency}...`)
-    
     // Evaluate rules in order of priority
     for (const rule of this.routingRules) {
       try {
         if (rule.evaluate(context)) {
           const state = this.getCircuitState(rule.targetPsp)
           if (state !== CircuitState.OPEN) {
-            console.log(`[DynamicPSPAdapter] Match found: Rule ${rule.id} -> routing to ${rule.targetPsp}`)
             return rule.targetPsp
           } else {
             console.warn(`[DynamicPSPAdapter] Match found for ${rule.id}, but ${rule.targetPsp} circuit is OPEN. Continuing rules evaluation.`)
@@ -132,7 +123,6 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
       throw new PSPOrchestrationError('All available Payment Service Providers are currently unavailable.')
     }
     
-    console.log(`[DynamicPSPAdapter] No specific rules matched. Falling back to default PSP: ${this.defaultPsp}`)
     return this.defaultPsp
   }
 
@@ -148,7 +138,7 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
    * Core PaymentAdapter Interface Execution
    */
 
-  async createPaymentIntent(amount: number, currency: string, metadata?: Record<string, any>): Promise<PaymentIntent> {
+  async createPaymentIntent(amount: number, currency: string, metadata?: Record<string, unknown>): Promise<PaymentIntent> {
     const context: RoutingContext = { amount, currency, metadata }
     let selectedPsp: PSPType
 
@@ -159,11 +149,9 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
       // Execute and monitor the call
       const startTime = Date.now()
       const result = await adapter.createPaymentIntent(amount, currency, metadata)
-      const duration = Date.now() - startTime
       
-      console.log(`[DynamicPSPAdapter] Successfully created PaymentIntent via ${selectedPsp} in ${duration}ms. id=${result.id}`)
       this.recordSuccess(selectedPsp)
-      return { ...result, metadata: { ...result.metadata, routedVia: selectedPsp } as any } // Annotate result
+      return { ...result, metadata: { ...result.metadata, routedVia: selectedPsp } } as PaymentIntent // Annotate result
       
     } catch (error) {
        console.error(`[DynamicPSPAdapter] Failure executing createPaymentIntent:`, error)
@@ -180,7 +168,7 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
                 const retryResult = await fallbackAdapter.createPaymentIntent(amount, currency, metadata)
                 console.log(`[DynamicPSPAdapter] Failover to ${fallbackType} succeeded! id=${retryResult.id}`)
                 this.recordSuccess(fallbackType)
-                return { ...retryResult, metadata: { ...retryResult.metadata, routedVia: fallbackType, wasFailover: true } as any }
+                return { ...retryResult, metadata: { ...retryResult.metadata, routedVia: fallbackType, wasFailover: true } } as PaymentIntent
              } catch (fallbackError) {
                 console.error(`[DynamicPSPAdapter] Failover to ${fallbackType} also failed.`, fallbackError)
                 this.recordFailure(fallbackType)
@@ -197,14 +185,14 @@ export class DynamicPSPAdapter implements IPaymentOrchestrator {
     // or rely on ID prefixes. We will use a naive approach: check all until one responds, 
     // honoring circuit breakers to prevent timeouts on dead PSPs.
     
-    let lastError: any
+    let lastError: unknown
     for (const [pspType, adapter] of this.adapters.entries()) {
       if (this.getCircuitState(pspType) === CircuitState.OPEN) continue
 
       try {
         const result = await adapter.retrievePaymentIntent(id)
         if (result) return result
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastError = err
         // Don't trip breaker for 404s, but maybe for 500s. We'll skip complex logic for now.
       }

@@ -27,14 +27,6 @@ export default async function RedirectPage() {
     const buildUrl = (subdomain: string, path: string) =>
         `${protocol}://${subdomain}.${rootDomain}${path}`;
 
-    console.log("[redirect]", {
-        userId: user.id,
-        role,
-        dashboardRole,
-        storeSlug,
-        isMultiTenant,
-    });
-
     // =========================
     // Affiliates
     // =========================
@@ -76,7 +68,6 @@ export default async function RedirectPage() {
         }
 
         if (isMultiTenant) {
-            console.log("[redirect] SELLER without slug → using resolver");
 
             return (
                 <SellerRedirectResolver

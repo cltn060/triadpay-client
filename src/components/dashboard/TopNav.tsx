@@ -35,7 +35,7 @@ export function TopNav({ title, userId }: TopNavProps) {
 
     // --- Search state ---
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<Record<string, unknown>[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const debounceRef = useRef<number | null>(null);
 
@@ -108,12 +108,12 @@ export function TopNav({ title, userId }: TopNavProps) {
                                         {results.map((r, idx) => (
                                             <a
                                                 key={idx}
-                                                href={r.href ?? "#"}
+                                                href={(r.href as string) ?? "#"}
                                                 className="block px-3 py-2 text-sm text-white hover:bg-white/5"
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <div className="truncate mr-2">{r.title ?? r.name ?? r.label}</div>
-                                                    {r.price && <div className="text-text-grey text-xs">{r.price}</div>}
+                                                    <div className="truncate mr-2">{(r.title ?? r.name ?? r.label) as string}</div>
+                                                    {r.price && <div className="text-text-grey text-xs">{r.price as string}</div>}
                                                 </div>
                                             </a>
                                         ))}

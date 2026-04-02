@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useCallback, useMemo } from "react";
 import type { Notification, NotificationGroup } from "@/types/notifications";
+import type { Id } from "@/convex/_generated/dataModel";
 
 interface UseNotificationsOptions {
     userId: string | null | undefined;
@@ -28,7 +29,7 @@ export function useNotifications({ userId, limit = 30 }: UseNotificationsOptions
 
     const markAsRead = useCallback(
         (notificationId: string) => {
-            return markAsReadMutation({ notificationId: notificationId as any });
+            return markAsReadMutation({ notificationId: notificationId as Id<"notifications"> });
         },
         [markAsReadMutation]
     );
@@ -40,7 +41,7 @@ export function useNotifications({ userId, limit = 30 }: UseNotificationsOptions
 
     const deleteNotification = useCallback(
         (notificationId: string) => {
-            return deleteNotificationMutation({ notificationId: notificationId as any });
+            return deleteNotificationMutation({ notificationId: notificationId as Id<"notifications"> });
         },
         [deleteNotificationMutation]
     );

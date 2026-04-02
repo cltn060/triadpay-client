@@ -46,8 +46,6 @@ export function getPaymentAdapter(name?: string): PaymentAdapter {
 
     dynamicAdapterInstance.addRoutingRule(paypalExperiment)
     dynamicAdapterInstance.addRoutingRule(highValueRule)
-
-    console.log('[PaymentFactory] Initialized Enterprise DynamicPSPAdapter with load balancing.')
   }
 
   return dynamicAdapterInstance as unknown as PaymentAdapter

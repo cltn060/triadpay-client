@@ -80,8 +80,8 @@ export function AffiliateManagerDrawer({
             });
             setSelectedAffiliateId("");
             setCommissionPercent("10");
-        } catch (error: any) {
-            alert(error.message || "Failed to add affiliate.");
+        } catch (error: unknown) {
+            alert(error instanceof Error ? error.message : "Failed to add affiliate.");
         } finally {
             setIsAdding(false);
         }
@@ -90,8 +90,8 @@ export function AffiliateManagerDrawer({
     const handleRemove = async (linkId: Id<"productAffiliates">) => {
         try {
             await removeAffiliate({ linkId });
-        } catch (error: any) {
-            alert(error.message || "Failed to remove affiliate.");
+        } catch (error: unknown) {
+            alert(error instanceof Error ? error.message : "Failed to remove affiliate.");
         }
     };
 

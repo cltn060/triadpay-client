@@ -17,7 +17,7 @@ export type RoutingRule = {
 export type RoutingContext = {
   amount: number
   currency: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   userId?: string
   tenantId?: string
 }
@@ -42,7 +42,7 @@ export interface IPaymentOrchestrator extends PaymentAdapter {
 }
 
 export class PSPOrchestrationError extends Error {
-  constructor(message: string, public readonly metadata?: Record<string, any>) {
+  constructor(message: string, public readonly metadata?: Record<string, unknown>) {
     super(message)
     this.name = 'PSPOrchestrationError'
   }

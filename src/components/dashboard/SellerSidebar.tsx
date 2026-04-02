@@ -21,8 +21,6 @@ export function SellerSidebar() {
         { label: t("earnings"), icon: "account_balance_wallet", href: "/seller/earnings" },
         { label: t("products"), icon: "inventory_2", href: "/seller/products" },
         { label: t("checkout"), icon: "shopping_cart", href: "/seller/checkout" },
-        { label: t("affiliates"), icon: "group", href: "/seller/affiliates" },
-        // { label: "Payouts", icon: "account_balance_wallet", href: "/seller/payouts" }, // TODO: implement payouts
         { label: t("payments"), icon: "payments", href: "/seller/payments" },
         { label: t("settings"), icon: "settings", href: "/seller/settings" },
     ];
