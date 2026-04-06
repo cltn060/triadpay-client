@@ -1,294 +1,290 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { useTranslations } from "next-intl";
 import { api } from "../../../../../../../convex/_generated/api";
-import { TopNav, PspWarning } from "@/components/dashboard";
-import { useUser } from "@clerk/nextjs";
-
-const ONBOARDING_STEPS = [
-    { key: "profile", label: "Complete Profile", icon: "person", description: "Add your display name and bio" },
-    { key: "psp", label: "Connect Payment", icon: "account_balance", description: "Link Stripe to receive commissions" },
-    { key: "links", label: "Generate First Link", icon: "link", description: "Get your first tracking link" },
-    { key: "share", label: "Share a Link", icon: "share", description: "Post your link on social media" },
-];
-
-type OnboardingStatus = {
-    profileCompleted: boolean;
-    pspConnected: boolean;
-    hasGeneratedLink: boolean;
-    hasSharedLink: boolean;
-    completedAt?: string;
-};
+import { TopNav } from "@/components/dashboard";
+import { useStoreContext } from "@/providers/store-context";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 export default function AffiliateSettingsPage() {
-    const { user } = useUser();
-    const paymentStatus = useQuery(api.paymentsHelpers.getAffiliatePaymentStatus);
-    const memberships = useQuery(api.memberships.getMyMemberships);
-    const storeGroups = useQuery(api.affiliates.getMyProductLinks);
-    const updateProfile = useMutation(api.memberships.updateAffiliateProfile);
-    const checkStripeStatus = useAction(api.stripeActions.checkAffiliateStripeStatus);
+    const t = useTranslations("SellerSettings");
+    const { store } = useStoreContext();
+    const updateStore = useMutation(api.stores.updateStoreBasicInfo);
+    const generateLogoUploadUrl = useMutation(api.stores.generateLogoUploadUrl);
 
-    const [displayName, setDisplayName] = useState("");
-    const [bio, setBio] = useState("");
-    const [saving, setSaving] = useState(false);
-    const [saved, setSaved] = useState(false);
-    const [notifyOnSale, setNotifyOnSale] = useState(true);
-    const [notifyOnApproval, setNotifyOnApproval] = useState(true);
-    const [autoGenerateLinks, setAutoGenerateLinks] = useState(false);
+    // Fetch existing logo URL
+    const storeLogoUrl = useQuery(
+        api.stores.getLogoUrl,
+        store?._id ? { storeId: store._id } : "skip"
+    );
 
-    // Derive onboarding progress
-    const hasProfile = !!(displayName && displayName.length > 2);
-    const hasPsp = paymentStatus?.connectedProviders?.some((p) => p.onboardingCompleted) ?? false;
-    const hasLinks = (storeGroups?.flatMap((g) => g.products).length ?? 0) > 0;
-    const hasApprovedMembership = memberships?.some((m) => m.status === "APPROVED") ?? false;
+    const [name, setName] = useState("");
+    const [supportEmail, setSupportEmail] = useState("");
+    const [brandColor, setBrandColor] = useState("#0df20d");
+    const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
+    const [logoHasWhiteBg, setLogoHasWhiteBg] = useState(false);
+    
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
 
-    const onboardingProgress = [hasProfile, hasPsp, hasLinks, false].filter(Boolean).length;
-    const onboardingTotal = ONBOARDING_STEPS.length;
-    const progressPercent = Math.round((onboardingProgress / onboardingTotal) * 100);
+    const logoInputRef = useRef<HTMLInputElement>(null);
 
-    // Load user profile on mount
     useEffect(() => {
-        if (user) {
-            setDisplayName(user.fullName || user.firstName || "");
-            setBio((user.unsafeMetadata?.bio as string) || "");
+        if (store) {
+            setName(store.name || "");
+            setSupportEmail(store.supportEmail || "");
+            setBrandColor(store.themeColor || "#0df20d");
+            setLogoHasWhiteBg(store.logoHasWhiteBg ?? false);
         }
-    }, [user]);
+    }, [store]);
 
-    const handleSaveProfile = useCallback(async () => {
-        if (!displayName.trim()) return;
-        setSaving(true);
+    const handleSave = async () => {
+        if (!store) return;
+        setIsSaving(true);
+        setSaveSuccess(false);
+
         try {
-            await updateProfile({
-                displayName: displayName.trim(),
-                bio: bio.trim(),
-                notifyOnSale,
-                notifyOnApproval,
-                autoGenerateLinks,
+            let logoStorageId = store.logoStorageId;
+
+            if (selectedLogo) {
+                const postUrl = await generateLogoUploadUrl();
+                const result = await fetch(postUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": selectedLogo.type },
+                    body: selectedLogo,
+                });
+                if (!result.ok) throw new Error("Failed to upload logo.");
+                const { storageId } = await result.json();
+                logoStorageId = storageId;
+            }
+
+            await updateStore({
+                storeId: store._id,
+                name,
+                supportEmail,
+                themeColor: brandColor,
+                logoStorageId,
+                logoHasWhiteBg,
             });
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
+            
+            setSaveSuccess(true);
+            setSelectedLogo(null);
+            setTimeout(() => setSaveSuccess(false), 3000);
         } catch (err) {
-            console.error("[settings] Failed to update profile:", err);
+            console.error("Save error:", err);
+            alert(t("errorSaving"));
         } finally {
-            setSaving(false);
+            setIsSaving(false);
         }
-    }, [displayName, bio, notifyOnSale, notifyOnApproval, autoGenerateLinks, updateProfile]);
+    };
 
-    return (
-        <>
-            <TopNav title="Settings" />
-            <div className="p-8 w-full max-w-4xl space-y-8">
-                <PspWarning type="affiliate" />
-
-                {/* Onboarding Progress */}
-                <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h2 className="text-lg font-bold text-white tracking-tight">Onboarding Progress</h2>
-                            <p className="text-text-grey text-sm mt-0.5">
-                                Complete these steps to start earning commissions
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl font-black text-primary">{progressPercent}%</span>
-                        </div>
+    if (store === undefined) {
+        return (
+            <div className="flex flex-col h-full bg-[#050505]">
+                <TopNav title={t("title")} />
+                <div className="p-8 flex items-center justify-center h-full">
+                    <div className="flex flex-col items-center gap-4">
+                        <span className="material-icons text-4xl text-white/10 animate-spin">sync</span>
+                        <p className="text-gray-500 text-sm font-medium">{t("loading")}</p>
                     </div>
-
-                    {/* Progress bar */}
-                    <div className="w-full h-2 bg-white/5 rounded-full mb-6 overflow-hidden">
-                        <div
-                            className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
-                            style={{ width: `${progressPercent}%` }}
-                        />
-                    </div>
-
-                    {/* Steps */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {ONBOARDING_STEPS.map((step, i) => {
-                            const completed = [hasProfile, hasPsp, hasLinks, false][i];
-                            return (
-                                <div
-                                    key={step.key}
-                                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                                        completed
-                                            ? "border-primary/20 bg-primary/5"
-                                            : "border-white/5 bg-white/[0.02]"
-                                    }`}
-                                >
-                                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                                        completed ? "bg-primary/20" : "bg-white/5"
-                                    }`}>
-                                        <span className={`material-icons text-lg ${
-                                            completed ? "text-primary" : "text-text-grey"
-                                        }`}>
-                                            {completed ? "check_circle" : step.icon}
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-medium ${completed ? "text-primary" : "text-white"}`}>
-                                            {step.label}
-                                        </p>
-                                        <p className="text-xs text-text-grey truncate">{step.description}</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* Profile Settings */}
-                <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
-                    <h2 className="text-lg font-bold text-white tracking-tight mb-1">Profile</h2>
-                    <p className="text-text-grey text-sm mb-5">How sellers and customers see you</p>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-medium text-text-grey mb-1.5">Display Name</label>
-                            <input
-                                type="text"
-                                value={displayName}
-                                onChange={(e) => setDisplayName(e.target.value)}
-                                placeholder="Your public name"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-text-grey/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-text-grey mb-1.5">Bio</label>
-                            <textarea
-                                value={bio}
-                                onChange={(e) => setBio(e.target.value)}
-                                placeholder="Tell sellers a bit about yourself and your audience..."
-                                rows={3}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-text-grey/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all resize-none"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Notification Preferences */}
-                <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
-                    <h2 className="text-lg font-bold text-white tracking-tight mb-1">Notifications</h2>
-                    <p className="text-text-grey text-sm mb-5">Choose what you want to be notified about</p>
-
-                    <div className="space-y-4">
-                        <label className="flex items-center justify-between cursor-pointer group">
-                            <div className="flex items-center gap-3">
-                                <span className="material-icons text-text-grey text-lg">notifications_active</span>
-                                <div>
-                                    <p className="text-sm text-white font-medium">Sale notifications</p>
-                                    <p className="text-xs text-text-grey">Get notified when someone purchases through your link</p>
-                                </div>
-                            </div>
-                            <div
-                                onClick={() => setNotifyOnSale(!notifyOnSale)}
-                                className={`w-11 h-6 rounded-full transition-colors cursor-pointer flex items-center ${
-                                    notifyOnSale ? "bg-primary" : "bg-white/10"
-                                }`}
-                            >
-                                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                                    notifyOnSale ? "translate-x-[22px]" : "translate-x-[2px]"
-                                }`} />
-                            </div>
-                        </label>
-
-                        <label className="flex items-center justify-between cursor-pointer group">
-                            <div className="flex items-center gap-3">
-                                <span className="material-icons text-text-grey text-lg">how_to_reg</span>
-                                <div>
-                                    <p className="text-sm text-white font-medium">Approval updates</p>
-                                    <p className="text-xs text-text-grey">Get notified when a seller approves or rejects your application</p>
-                                </div>
-                            </div>
-                            <div
-                                onClick={() => setNotifyOnApproval(!notifyOnApproval)}
-                                className={`w-11 h-6 rounded-full transition-colors cursor-pointer flex items-center ${
-                                    notifyOnApproval ? "bg-primary" : "bg-white/10"
-                                }`}
-                            >
-                                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                                    notifyOnApproval ? "translate-x-[22px]" : "translate-x-[2px]"
-                                }`} />
-                            </div>
-                        </label>
-
-                        <label className="flex items-center justify-between cursor-pointer group">
-                            <div className="flex items-center gap-3">
-                                <span className="material-icons text-text-grey text-lg">auto_fix_high</span>
-                                <div>
-                                    <p className="text-sm text-white font-medium">Auto-generate platform links</p>
-                                    <p className="text-xs text-text-grey">Automatically create tracking links for all platforms when added to a product</p>
-                                </div>
-                            </div>
-                            <div
-                                onClick={() => setAutoGenerateLinks(!autoGenerateLinks)}
-                                className={`w-11 h-6 rounded-full transition-colors cursor-pointer flex items-center ${
-                                    autoGenerateLinks ? "bg-primary" : "bg-white/10"
-                                }`}
-                            >
-                                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                                    autoGenerateLinks ? "translate-x-[22px]" : "translate-x-[2px]"
-                                }`} />
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                {/* Account Info (read-only) */}
-                <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
-                    <h2 className="text-lg font-bold text-white tracking-tight mb-1">Account</h2>
-                    <p className="text-text-grey text-sm mb-5">Your account information</p>
-
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between py-2 border-b border-white/5">
-                            <span className="text-sm text-text-grey">Email</span>
-                            <span className="text-sm text-white font-mono">
-                                {user?.primaryEmailAddress?.emailAddress ?? "—"}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-white/5">
-                            <span className="text-sm text-text-grey">Role</span>
-                            <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                                AFFILIATE
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-white/5">
-                            <span className="text-sm text-text-grey">Payment Provider</span>
-                            <span className="text-sm text-white">
-                                {hasPsp ? "Stripe (Connected)" : "Not connected"}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between py-2">
-                            <span className="text-sm text-text-grey">Active Partnerships</span>
-                            <span className="text-sm text-white font-mono">
-                                {memberships?.filter((m) => m.status === "APPROVED").length ?? 0}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Save Button */}
-                <div className="flex items-center justify-end gap-3 pb-8">
-                    {saved && (
-                        <span className="flex items-center gap-1.5 text-primary text-sm font-medium">
-                            <span className="material-icons text-sm">check_circle</span>
-                            Settings saved
-                        </span>
-                    )}
-                    <button
-                        onClick={handleSaveProfile}
-                        disabled={saving || !displayName.trim()}
-                        className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${
-                            saving || !displayName.trim()
-                                ? "bg-white/5 text-text-grey cursor-not-allowed"
-                                : "bg-primary text-black hover:bg-primary/90 active:scale-95 cursor-pointer"
-                        }`}
-                    >
-                        {saving ? "Saving..." : "Save Changes"}
-                    </button>
                 </div>
             </div>
-        </>
+        );
+    }
+
+    if (store === null) {
+        return (
+            <div className="flex flex-col h-full bg-[#050505]">
+                <TopNav title={t("title")} />
+                <div className="p-8 flex items-center justify-center h-full">
+                    <div className="flex flex-col items-center gap-4">
+                        <span className="material-icons text-4xl text-red-500/20">error_outline</span>
+                        <p className="text-gray-500 text-sm font-medium">{t("storeNotFound")}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col h-full bg-[#050505] overflow-y-auto custom-scrollbar">
+            <TopNav title={t("title")} />
+
+            <div className="p-8 max-w-4xl mx-auto w-full pb-24">
+                <div className="mb-10">
+                    <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{t("generalSettings")}</h2>
+                    <p className="text-gray-400 text-sm">{t("storeInfoNote")}</p>
+                </div>
+
+                <div className="space-y-10">
+                    {/* Store Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("storeDisplayName")}</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("placeholderName")}
+                                    className="w-full bg-[#121212] border border-white/5 rounded-xl px-4 py-3 text-white focus:border-primary/50 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("supportEmail")}</label>
+                                <input
+                                    type="email"
+                                    value={supportEmail}
+                                    onChange={(e) => setSupportEmail(e.target.value)}
+                                    placeholder={t("placeholderEmail")}
+                                    className="w-full bg-[#121212] border border-white/5 rounded-xl px-4 py-3 text-white focus:border-primary/50 focus:outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Logo Info */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("storeLogo")}</label>
+                            
+                            <input
+                                type="file"
+                                ref={logoInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => setSelectedLogo(e.target.files?.[0] || null)}
+                            />
+
+                            <div className="flex flex-col gap-3">
+                                <div 
+                                    onClick={() => logoInputRef.current?.click()}
+                                    className="relative group aspect-square max-w-[200px] w-full rounded-2xl bg-[#121212] border border-dashed border-white/10 hover:border-white/30 hover:bg-white/5 flex flex-col items-center justify-center p-4 transition-all overflow-hidden cursor-pointer"
+                                >
+                                    {(selectedLogo || storeLogoUrl) ? (
+                                        <div className={cn(
+                                            "absolute inset-2 rounded-xl flex items-center justify-center p-2 group-hover:scale-105 transition-all shadow-lg overflow-hidden border",
+                                            logoHasWhiteBg ? "bg-white border-white/20" : "bg-transparent border-transparent"
+                                        )}>
+                                            <img 
+                                                src={selectedLogo ? URL.createObjectURL(selectedLogo) : (storeLogoUrl as string)} 
+                                                alt="Store Logo" 
+                                                className="w-full h-full object-contain"
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <span className="material-icons text-white">edit</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="material-icons text-gray-400 group-hover:text-white transition-colors text-4xl mb-2">add_photo_alternate</span>
+                                            <p className="text-gray-400 group-hover:text-white transition-colors text-[10px] text-center font-bold tracking-widest uppercase">Upload Logo</p>
+                                        </>
+                                    )}
+                                </div>
+                                <label className="flex items-center gap-2 cursor-pointer mt-1 group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={logoHasWhiteBg}
+                                            onChange={(e) => setLogoHasWhiteBg(e.target.checked)}
+                                            className="sr-only"
+                                        />
+                                        <div className={cn(
+                                            "w-9 h-5 rounded-full transition-colors duration-200 ease-in-out",
+                                            logoHasWhiteBg ? "bg-primary" : "bg-[#2a2a2a]"
+                                        )}></div>
+                                        <div className={cn(
+                                            "absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out shadow-sm",
+                                            logoHasWhiteBg ? "translate-x-4" : "translate-x-0"
+                                        )}></div>
+                                    </div>
+                                    <span className="text-xs text-gray-400 group-hover:text-white transition-colors font-medium">Add white background</span>
+                                </label>
+                                <p className="text-xs text-gray-500">
+                                    100x100px square format recommended.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Branding */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("brandAccentColor")}</label>
+                            <button
+                                onClick={() => setBrandColor("#0df20d")}
+                                className="text-[10px] text-gray-500 hover:text-white transition-colors cursor-pointer"
+                            >
+                                {t("resetDefault")}</button>
+                        </div>
+                        <div className="flex items-center gap-6 p-4 bg-[#121212] border border-white/5 rounded-2xl">
+                            <div className="relative w-12 h-12 shrink-0">
+                                <input
+                                    type="color"
+                                    value={brandColor}
+                                    onChange={(e) => setBrandColor(e.target.value)}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                                <div
+                                    className="w-full h-full rounded-xl border-2 border-white/10 shadow-lg"
+                                    style={{ backgroundColor: brandColor }}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex gap-2">
+                                    {['#0df20d', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316'].map((color) => (
+                                        <button
+                                            key={color}
+                                            onClick={() => setBrandColor(color)}
+                                            className={cn(
+                                                "w-6 h-6 rounded-full border border-white/10 transition-transform active:scale-95 cursor-pointer",
+                                                brandColor === color && "ring-2 ring-white ring-offset-2 ring-offset-[#121212]"
+                                            )}
+                                            style={{ backgroundColor: color }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Preview Badge */}
+                            <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-[10px] text-gray-500 uppercase font-bold">{t("preview")}</span>
+                                <div
+                                    className="px-3 py-1 rounded-full text-[10px] font-bold text-black shadow-lg"
+                                    style={{ backgroundColor: brandColor }}
+                                >
+                                    {t("readyToSave")}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Submit */}
+                    <div className="pt-6 flex items-center justify-between border-t border-white/5">
+                        <div className="flex items-center gap-3">
+                            {saveSuccess && (
+                                <div className="flex items-center gap-2 text-primary font-bold animate-in fade-in slide-in-from-left-2 transition-all">
+                                    <span className="material-icons text-sm">check_circle</span>
+                                    <p className="text-xs">{t("savedSuccess")}</p>
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="bg-primary hover:brightness-110 disabled:opacity-30 disabled:grayscale text-black text-sm font-bold px-8 py-3 rounded-xl transition-all shadow-glow hover:shadow-glow-lg flex items-center gap-2 cursor-pointer active:scale-95"
+                        >
+                            {isSaving ? (
+                                <span className="material-icons text-xl animate-spin">sync</span>
+                            ) : (
+                                <span className="material-icons text-xl">save</span>
+                            )}
+                            {isSaving ? t("saving") : t("saveChanges")}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

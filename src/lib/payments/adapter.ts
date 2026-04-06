@@ -3,11 +3,10 @@ export type PaymentIntent = {
   amount: number
   currency: string
   status: string
-  metadata?: Record<string, unknown>
 }
 
 export interface PaymentAdapter {
-  createPaymentIntent(amount: number, currency: string, metadata?: Record<string, unknown>): Promise<PaymentIntent>
+  createPaymentIntent(amount: number, currency: string, metadata?: Record<string, any>): Promise<PaymentIntent>
   retrievePaymentIntent(id: string): Promise<PaymentIntent>
   capturePayment(id: string): Promise<PaymentIntent>
 }
