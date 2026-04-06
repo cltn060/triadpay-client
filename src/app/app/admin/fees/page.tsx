@@ -3,6 +3,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function FeesPage() {
     const feeConfigs = useQuery(api.platformFees.getAllFeeConfigs);
@@ -10,6 +11,7 @@ export default function FeesPage() {
     const upsertGlobal = useMutation(api.platformFees.upsertGlobalFee);
     const upsertStore = useMutation(api.platformFees.upsertStoreFee);
     const deleteOverride = useMutation(api.platformFees.deleteStoreFee);
+    const t = useTranslations("Admin.Fees");
 
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editPercent, setEditPercent] = useState("");
@@ -48,7 +50,7 @@ export default function FeesPage() {
     };
 
     const handleDeleteOverride = async (storeId: any) => {
-        if (!confirm("Remove this per-store override? The store will fall back to the global default.")) return;
+        if (!confirm(t("confirmRemove"))) return;
         try {
             await deleteOverride({ storeId });
         } catch (err: any) {
@@ -57,7 +59,7 @@ export default function FeesPage() {
     };
 
     if (!feeConfigs || !stores) {
-        return <p className="text-text-grey text-sm">Loading fee configs...</p>;
+        return <p className="text-text-grey text-sm">{t("loading")}</p>;
     }
 
     // Get global fee config
@@ -89,9 +91,9 @@ export default function FeesPage() {
     return (
         <div>
             <div className="mb-6">
-                <h2 className="text-white text-2xl font-bold">Platform Fees</h2>
+                <h2 className="text-white text-2xl font-bold">{t("title")}</h2>
                 <p className="text-text-grey text-sm mt-1">
-                    Configure Triadpay's fee on every transaction. Per-store overrides take precedence over the global default.
+                    {t("description")}
                 </p>
             </div>
 
@@ -99,8 +101,8 @@ export default function FeesPage() {
                 <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                     <thead>
                         <tr className="border-b border-white/5">
-                            {["Type", "Store", "Fee %", "Flat (¢)", "Updated", "Actions"].map((h) => (
-                                <th key={h} className="text-left px-6 py-3 text-text-grey text-xs uppercase tracking-wider font-medium">
+                            {[t("colType"), t("colStore"), t("colFeePercent"), t("colFlat"), t("colUpdated"), t("colActions")].map((h, i) => (
+                                <th key={i} className="text-left px-6 py-3 text-text-grey text-xs uppercase tracking-wider font-medium">
                                     {h}
                                 </th>
                             ))}
@@ -121,7 +123,7 @@ export default function FeesPage() {
                                                 ? "text-text-grey bg-white/5 border-white/10"
                                                 : "text-text-grey bg-white/5 border-white/10"
                                         }`}>
-                                            {isGlobal ? "GLOBAL" : isDefault ? "DEFAULT" : "OVERRIDE"}
+                                            {isGlobal ? t("statusGlobal") : isDefault ? t("statusDefault") : t("statusOverride")}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-white">
@@ -167,13 +169,13 @@ export default function FeesPage() {
                                                     disabled={saving}
                                                     className="text-xs px-4 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 cursor-pointer disabled:opacity-50 transition-colors font-medium"
                                                 >
-                                                    {saving ? "Saving..." : "Save"}
+                                                    {saving ? t("saving") : t("save")}
                                                 </button>
                                                 <button
                                                     onClick={() => setEditingId(null)}
                                                     className="text-xs px-4 py-2 rounded-lg bg-white/5 text-text-grey hover:text-white border border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
                                                 >
-                                                    Cancel
+                                                    {t("cancel")}
                                                 </button>
                                             </div>
                                         ) : (
@@ -186,14 +188,14 @@ export default function FeesPage() {
                                                     }}
                                                     className="text-xs px-4 py-2 rounded-lg border border-white/10 text-text-grey hover:text-white hover:bg-white/5 cursor-pointer transition-colors"
                                                 >
-                                                    Edit
+                                                    {t("edit")}
                                                 </button>
                                                 {!isGlobal && !isDefault && (
                                                     <button
                                                         onClick={() => handleDeleteOverride(config.storeId)}
                                                         className="text-xs px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 cursor-pointer transition-colors"
                                                     >
-                                                        Remove
+                                                        {t("remove")}
                                                     </button>
                                                 )}
                                             </div>

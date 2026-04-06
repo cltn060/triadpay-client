@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { useState } from "react";
 import { formatMoney } from "@/lib/currency";
+import { useTranslations } from "next-intl";
 
 function formatCents(cents: number): string {
     return formatMoney(cents, "USD");
@@ -21,22 +22,23 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function TransactionsPage() {
     const [statusFilter, setStatusFilter] = useState("");
+    const t = useTranslations("Admin.Transactions");
     const transactions = useQuery(api.admin.getAllTransactions, {
         status: statusFilter || undefined,
         limit: 100,
     });
 
     if (!transactions) {
-        return <p className="text-text-grey text-sm">Loading transactions...</p>;
+        return <p className="text-text-grey text-sm">{t("loading")}</p>;
     }
 
     return (
         <div>
             <div className="flex items-start justify-between mb-6">
                 <div>
-                    <h2 className="text-white text-2xl font-bold">Transactions</h2>
+                    <h2 className="text-white text-2xl font-bold">{t("title")}</h2>
                     <p className="text-text-grey text-sm mt-1">
-                        Global view across all stores. Showing {transactions.length} records.
+                        {t("description", { count: transactions.length })}
                     </p>
                 </div>
 
@@ -46,12 +48,12 @@ export default function TransactionsPage() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="bg-background-dark border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-white/30 cursor-pointer"
                 >
-                    <option value="">All Statuses</option>
-                    <option value="PAID">Paid</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="IN_PROCESS">In Process</option>
-                    <option value="FAILED">Failed</option>
-                    <option value="REFUNDED">Refunded</option>
+                    <option value="">{t("allStatuses")}</option>
+                    <option value="PAID">{t("statusPaid")}</option>
+                    <option value="PENDING">{t("statusPending")}</option>
+                    <option value="IN_PROCESS">{t("statusInProcess")}</option>
+                    <option value="FAILED">{t("statusFailed")}</option>
+                    <option value="REFUNDED">{t("statusRefunded")}</option>
                 </select>
             </div>
 
@@ -59,8 +61,8 @@ export default function TransactionsPage() {
                 <table className="w-full text-xs" style={{ borderCollapse: "collapse", minWidth: "1100px" }}>
                     <thead>
                         <tr className="border-b border-white/5">
-                            {["Ref", "Store", "Seller", "Product", "Amount", "Platform", "WL Fee", "Affiliate", "Seller Net", "Status", "Transfers", "Date"].map((h) => (
-                                <th key={h} className="text-left px-4 py-3 text-text-grey text-xs uppercase tracking-wider font-medium whitespace-nowrap">
+                            {[t("colRef"), t("colStore"), t("colSeller"), t("colProduct"), t("colAmount"), t("colPlatform"), t("colWlFee"), t("colAffiliate"), t("colSellerNet"), t("colStatus"), t("colTransfers"), t("colDate")].map((h, i) => (
+                                <th key={i} className="text-left px-4 py-3 text-text-grey text-xs uppercase tracking-wider font-medium whitespace-nowrap">
                                     {h}
                                 </th>
                             ))}
@@ -70,7 +72,7 @@ export default function TransactionsPage() {
                         {transactions.length === 0 && (
                             <tr>
                                 <td colSpan={12} className="px-6 py-12 text-center text-text-grey">
-                                    No transactions found.
+                                    {t("noTransactions")}
                                 </td>
                             </tr>
                         )}
@@ -98,10 +100,10 @@ export default function TransactionsPage() {
                                         {tx.transferStatus?.completedAt ? (
                                             <span className="flex items-center gap-1 text-green-400 text-[11px]">
                                                 <span className="material-icons text-[13px]">check_circle</span>
-                                                Done
+                                                {t("transferDone")}
                                             </span>
                                         ) : tx.status === "PAID" ? (
-                                            <span className="text-amber-400 text-[11px]">Pending</span>
+                                            <span className="text-amber-400 text-[11px]">{t("transferPending")}</span>
                                         ) : (
                                             <span className="text-text-grey text-[11px]">—</span>
                                         )}

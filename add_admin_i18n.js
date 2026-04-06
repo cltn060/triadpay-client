@@ -1,0 +1,295 @@
+const fs = require('fs');
+
+const adminEn = {
+    "Layout": {
+        "title": "Triadpay Admin",
+        "platformManagement": "Platform Management",
+        "overview": "Overview",
+        "tenants": "Tenants",
+        "fees": "Fees",
+        "transactions": "Transactions",
+        "loading": "Loading...",
+        "rootAdmin": "Root Admin",
+        "signOut": "Sign out"
+    },
+    "Overview": {
+        "title": "Platform Overview",
+        "description": "Global metrics across all WL tenants.",
+        "totalStores": "Total Stores",
+        "activeStores": "active",
+        "frozenStores": "frozen",
+        "sellers": "Sellers",
+        "affiliates": "Affiliates",
+        "transactions": "Transactions",
+        "paidTransactions": "paid",
+        "totalRevenue": "Total Revenue",
+        "platformEarnings": "Platform Earnings",
+        "triadpaysCut": "Triadpay's cut",
+        "wlOwnerEarnings": "WL Owner Earnings",
+        "acrossAllStores": "Across all stores",
+        "loading": "Loading stats..."
+    },
+    "Fees": {
+        "title": "Platform Fees",
+        "description": "Configure Triadpay's fee on every transaction. Per-store overrides take precedence over the global default.",
+        "colType": "Type",
+        "colStore": "Store",
+        "colFeePercent": "Fee %",
+        "colFlat": "Flat (¢)",
+        "colUpdated": "Updated",
+        "colActions": "Actions",
+        "statusGlobal": "GLOBAL",
+        "statusOverride": "OVERRIDE",
+        "statusDefault": "DEFAULT",
+        "save": "Save",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "remove": "Remove",
+        "loading": "Loading fee configs...",
+        "confirmRemove": "Remove this per-store override? The store will fall back to the global default."
+    },
+    "Tenants": {
+        "title": "WL Tenants",
+        "description": "All white-label stores on the platform. {count} total.",
+        "colStore": "Store",
+        "colStatus": "Status",
+        "colOwner": "Owner",
+        "colSellers": "Sellers",
+        "colAffiliates": "Affiliates",
+        "colRevenue": "Revenue",
+        "colPlatformFees": "Platform Fees",
+        "colWlPercent": "WL%",
+        "colActions": "Actions",
+        "loading": "Loading stores...",
+        "unfreeze": "Unfreeze",
+        "freeze": "Freeze"
+    },
+    "Transactions": {
+        "title": "Transactions",
+        "description": "Global view across all stores. Showing {count} records.",
+        "loading": "Loading transactions...",
+        "allStatuses": "All Statuses",
+        "statusPaid": "Paid",
+        "statusPending": "Pending",
+        "statusInProcess": "In Process",
+        "statusFailed": "Failed",
+        "statusRefunded": "Refunded",
+        "colRef": "Ref",
+        "colStore": "Store",
+        "colSeller": "Seller",
+        "colProduct": "Product",
+        "colAmount": "Amount",
+        "colPlatform": "Platform",
+        "colWlFee": "WL Fee",
+        "colAffiliate": "Affiliate",
+        "colSellerNet": "Seller Net",
+        "colStatus": "Status",
+        "colTransfers": "Transfers",
+        "colDate": "Date",
+        "noTransactions": "No transactions found.",
+        "transferDone": "Done",
+        "transferPending": "Pending"
+    }
+};
+
+const adminPt = {
+    "Layout": {
+        "title": "Administração Triadpay",
+        "platformManagement": "Gerenciamento da Plataforma",
+        "overview": "Visão Geral",
+        "tenants": "Inquilinos",
+        "fees": "Taxas",
+        "transactions": "Transações",
+        "loading": "Carregando...",
+        "rootAdmin": "Administrador Raiz",
+        "signOut": "Sair"
+    },
+    "Overview": {
+        "title": "Visão Geral da Plataforma",
+        "description": "Métricas globais em todos os inquilinos WL.",
+        "totalStores": "Total de Lojas",
+        "activeStores": "ativos",
+        "frozenStores": "congelados",
+        "sellers": "Vendedores",
+        "affiliates": "Afiliados",
+        "transactions": "Transações",
+        "paidTransactions": "pagos",
+        "totalRevenue": "Receita Total",
+        "platformEarnings": "Ganhos da Plataforma",
+        "triadpaysCut": "Parte da Triadpay",
+        "wlOwnerEarnings": "Ganhos do Proprietário WL",
+        "acrossAllStores": "Em todas as lojas",
+        "loading": "Carregando estatísticas..."
+    },
+    "Fees": {
+        "title": "Taxas da Plataforma",
+        "description": "Configure a taxa da Triadpay em cada transação. Substituições por loja têm precedência sobre o padrão global.",
+        "colType": "Tipo",
+        "colStore": "Loja",
+        "colFeePercent": "Taxa %",
+        "colFlat": "Fixo (¢)",
+        "colUpdated": "Atualizado",
+        "colActions": "Ações",
+        "statusGlobal": "GLOBAL",
+        "statusOverride": "SUBSTITUIÇÃO",
+        "statusDefault": "PADRÃO",
+        "save": "Salvar",
+        "saving": "Salvando...",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Remover",
+        "loading": "Carregando configurações de taxas...",
+        "confirmRemove": "Remover esta substituição por loja? A loja voltará ao padrão global."
+    },
+    "Tenants": {
+        "title": "Inquilinos WL",
+        "description": "Todas as lojas white-label na plataforma. {count} no total.",
+        "colStore": "Loja",
+        "colStatus": "Status",
+        "colOwner": "Proprietário",
+        "colSellers": "Vendedores",
+        "colAffiliates": "Afiliados",
+        "colRevenue": "Receita",
+        "colPlatformFees": "Taxas da Plataforma",
+        "colWlPercent": "WL%",
+        "colActions": "Ações",
+        "loading": "Carregando lojas...",
+        "unfreeze": "Descongelar",
+        "freeze": "Congelar"
+    },
+    "Transactions": {
+        "title": "Transações",
+        "description": "Visão global em todas as lojas. Mostrando {count} registros.",
+        "loading": "Carregando transações...",
+        "allStatuses": "Todos os Status",
+        "statusPaid": "Pago",
+        "statusPending": "Pendente",
+        "statusInProcess": "Em Processo",
+        "statusFailed": "Falhou",
+        "statusRefunded": "Reembolsado",
+        "colRef": "Ref",
+        "colStore": "Loja",
+        "colSeller": "Vendedor",
+        "colProduct": "Produto",
+        "colAmount": "Valor",
+        "colPlatform": "Plataforma",
+        "colWlFee": "Taxa WL",
+        "colAffiliate": "Afiliado",
+        "colSellerNet": "Líquido do Vendedor",
+        "colStatus": "Status",
+        "colTransfers": "Transferências",
+        "colDate": "Data",
+        "noTransactions": "Nenhuma transação encontrada.",
+        "transferDone": "Concluído",
+        "transferPending": "Pendente"
+    }
+};
+
+const adminFr = {
+    "Layout": {
+        "title": "Administration Triadpay",
+        "platformManagement": "Gestion de la Plateforme",
+        "overview": "Aperçu",
+        "tenants": "Locataires",
+        "fees": "Frais",
+        "transactions": "Transactions",
+        "loading": "Chargement...",
+        "rootAdmin": "Administrateur Principal",
+        "signOut": "Déconnexion"
+    },
+    "Overview": {
+        "title": "Aperçu de la Plateforme",
+        "description": "Métriques globales sur tous les locataires WL.",
+        "totalStores": "Boutiques Totales",
+        "activeStores": "actifs",
+        "frozenStores": "gelés",
+        "sellers": "Vendeurs",
+        "affiliates": "Affiliés",
+        "transactions": "Transactions",
+        "paidTransactions": "payés",
+        "totalRevenue": "Revenu Total",
+        "platformEarnings": "Gains de la Plateforme",
+        "triadpaysCut": "Part de Triadpay",
+        "wlOwnerEarnings": "Gains du Propriétaire WL",
+        "acrossAllStores": "Sur toutes les boutiques",
+        "loading": "Chargement des statistiques..."
+    },
+    "Fees": {
+        "title": "Frais de la Plateforme",
+        "description": "Configurez les frais de Triadpay sur chaque transaction. Les exceptions par boutique ont la priorité sur le défaut global.",
+        "colType": "Type",
+        "colStore": "Boutique",
+        "colFeePercent": "Frais %",
+        "colFlat": "Fixe (¢)",
+        "colUpdated": "Mis à jour",
+        "colActions": "Actions",
+        "statusGlobal": "GLOBAL",
+        "statusOverride": "EXCEPTION",
+        "statusDefault": "DÉFAUT",
+        "save": "Enregistrer",
+        "saving": "Enregistrement...",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "remove": "Supprimer",
+        "loading": "Chargement des configurations de frais...",
+        "confirmRemove": "Supprimer cette exception par boutique ? La boutique reviendra au défaut global."
+    },
+    "Tenants": {
+        "title": "Locataires WL",
+        "description": "Toutes les boutiques en marque blanche sur la plateforme. {count} au total.",
+        "colStore": "Boutique",
+        "colStatus": "Statut",
+        "colOwner": "Propriétaire",
+        "colSellers": "Vendeurs",
+        "colAffiliates": "Affiliés",
+        "colRevenue": "Revenu",
+        "colPlatformFees": "Frais de la Plateforme",
+        "colWlPercent": "WL%",
+        "colActions": "Actions",
+        "loading": "Chargement des boutiques...",
+        "unfreeze": "Dégeler",
+        "freeze": "Geler"
+    },
+    "Transactions": {
+        "title": "Transactions",
+        "description": "Vue globale sur toutes les boutiques. Affichage de {count} enregistrements.",
+        "loading": "Chargement des transactions...",
+        "allStatuses": "Tous les Statuts",
+        "statusPaid": "Payé",
+        "statusPending": "En attente",
+        "statusInProcess": "En cours",
+        "statusFailed": "Échoué",
+        "statusRefunded": "Remboursé",
+        "colRef": "Réf",
+        "colStore": "Boutique",
+        "colSeller": "Vendeur",
+        "colProduct": "Produit",
+        "colAmount": "Montant",
+        "colPlatform": "Plateforme",
+        "colWlFee": "Frais WL",
+        "colAffiliate": "Affilié",
+        "colSellerNet": "Net du Vendeur",
+        "colStatus": "Statut",
+        "colTransfers": "Transferts",
+        "colDate": "Date",
+        "noTransactions": "Aucune transaction trouvée.",
+        "transferDone": "Terminé",
+        "transferPending": "En attente"
+    }
+};
+
+const updateJson = (path, adminData) => {
+    if (fs.existsSync(path)) {
+        const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+        data["Admin"] = adminData;
+        fs.writeFileSync(path, JSON.stringify(data, null, 4));
+        console.log("Updated", path);
+    } else {
+        console.log("Missing", path);
+    }
+};
+
+updateJson('messages/en.json', adminEn);
+updateJson('messages/pt.json', adminPt);
+updateJson('messages/fr.json', adminFr);

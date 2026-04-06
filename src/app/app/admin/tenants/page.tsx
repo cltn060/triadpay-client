@@ -5,6 +5,7 @@ import { api } from "../../../../../convex/_generated/api";
 import { formatMoney } from "@/lib/currency";
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 function formatCents(cents: number): string {
     return formatMoney(cents, "USD");
@@ -15,6 +16,7 @@ export default function TenantsPage() {
     const freezeStore = useMutation(api.admin.freezeStore);
     const unfreezeStore = useMutation(api.admin.unfreezeStore);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const t = useTranslations("Admin.Tenants");
 
     const handleToggleFreeze = async (storeId: any, currentStatus: string) => {
         setActionLoading(storeId);
@@ -32,15 +34,15 @@ export default function TenantsPage() {
     };
 
     if (!stores) {
-        return <p className="text-text-grey text-sm">Loading stores...</p>;
+        return <p className="text-text-grey text-sm">{t("loading")}</p>;
     }
 
     return (
         <div>
             <div className="mb-6">
-                <h2 className="text-white text-2xl font-bold">WL Tenants</h2>
+                <h2 className="text-white text-2xl font-bold">{t("title")}</h2>
                 <p className="text-text-grey text-sm mt-1">
-                    All white-label stores on the platform. {stores.length} total.
+                    {t("description", { count: stores.length })}
                 </p>
             </div>
 
@@ -48,8 +50,8 @@ export default function TenantsPage() {
                 <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                     <thead>
                         <tr className="border-b border-white/5">
-                            {["Store", "Status", "Owner", "Sellers", "Affiliates", "Revenue", "Platform Fees", "WL%", "Actions"].map((h) => (
-                                <th key={h} className="text-left px-6 py-3 text-text-grey text-xs uppercase tracking-wider font-medium">
+                            {[t("colStore"), t("colStatus"), t("colOwner"), t("colSellers"), t("colAffiliates"), t("colRevenue"), t("colPlatformFees"), t("colWlPercent"), t("colActions")].map((h, i) => (
+                                <th key={i} className="text-left px-6 py-3 text-text-grey text-xs uppercase tracking-wider font-medium">
                                     {h}
                                 </th>
                             ))}
@@ -109,7 +111,7 @@ export default function TenantsPage() {
                                                 : "border border-white/10 text-text-grey hover:text-white"
                                         }`}
                                     >
-                                        {actionLoading === store._id ? "..." : store.status === "FROZEN" ? "Unfreeze" : "Freeze"}
+                                        {actionLoading === store._id ? "..." : store.status === "FROZEN" ? t("unfreeze") : t("freeze")}
                                     </button>
                                 </td>
                             </tr>
