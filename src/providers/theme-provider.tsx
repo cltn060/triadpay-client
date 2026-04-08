@@ -31,8 +31,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const root = document.documentElement;
         if (theme === "dark") {
             root.classList.add("dark");
+            root.setAttribute("data-theme", "dark");
+            root.style.setProperty("--background", "#050505");
+            root.style.setProperty("--foreground", "#f5f5f7");
+            root.style.setProperty("--surface-dark", "#111827");
+            root.style.setProperty("--text-grey", "#94a3b8");
+            root.style.setProperty("--primary", "#0df20d");
+            root.style.setProperty("--primary-rgb", "13, 242, 13");
         } else {
             root.classList.remove("dark");
+            root.setAttribute("data-theme", "light");
+            root.style.setProperty("--background", "#f8fafc");
+            root.style.setProperty("--foreground", "#111827");
+            root.style.setProperty("--surface-dark", "#ffffff");
+            root.style.setProperty("--text-grey", "#64748b");
+            root.style.setProperty("--primary", "#0f766e");
+            root.style.setProperty("--primary-rgb", "15, 118, 110");
         }
         localStorage.setItem("theme", theme);
     }, [theme, mounted]);
