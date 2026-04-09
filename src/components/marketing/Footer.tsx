@@ -16,7 +16,7 @@ export function Footer() {
                                 <span className="material-icons text-sm font-bold">bolt</span>
                             </div>
                             <div>
-                                <p className="text-lg font-semibold">Caruma</p>
+                                <p className="text-lg font-semibold">Triadpay</p>
                                 <p className="text-sm text-text-grey">Payments built for modern SaaS.</p>
                             </div>
                         </Link>

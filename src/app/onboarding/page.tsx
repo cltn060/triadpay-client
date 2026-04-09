@@ -44,7 +44,7 @@ export default function OnboardingPage() {
         return (
             <div className="min-h-screen bg-[#050505] flex items-center justify-center">
                 <div className="animate-pulse text-[#0df20d] flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-[#0df20d] flex items-center justify-center text-black font-bold text-lg">C</div>
+                    <div className="w-8 h-8 rounded bg-[#0df20d] flex items-center justify-center text-black font-bold text-lg">T</div>
                     <span className="text-sm font-medium text-gray-400">Loading...</span>
                 </div>
             </div>
@@ -165,8 +165,8 @@ export default function OnboardingPage() {
                 {/* Logo */}
                 <div className="flex justify-center mb-8">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-[#0df20d] flex items-center justify-center text-black font-bold text-lg">C</div>
-                        <span className="font-bold text-xl tracking-tight text-white">Caruma</span>
+                        <div className="w-8 h-8 rounded bg-[#0df20d] flex items-center justify-center text-black font-bold text-lg">T</div>
+                        <span className="font-bold text-xl tracking-tight text-white">Triadpay</span>
                     </div>
                 </div>
 
@@ -217,7 +217,7 @@ export default function OnboardingPage() {
                                             placeholder="your-slug"
                                             className="flex-1 bg-[#121212] border-none p-0 text-white placeholder-gray-600 focus:ring-0 text-sm h-full outline-none py-3"
                                         />
-                                        <span className="pr-4 pl-1 py-3 text-gray-500 text-sm select-none">.caruma.com</span>
+                                        <span className="pr-4 pl-1 py-3 text-gray-500 text-sm select-none">.triadpay.com</span>
                                     </div>
                                 </div>
 
@@ -359,16 +359,14 @@ export default function OnboardingPage() {
                                     <button
                                         type="button"
                                         onClick={() => setSelectedPsp("STRIPE")}
-                                        className={`w-full text-left rounded-xl border-2 p-5 transition-all ${
-                                            selectedPsp === "STRIPE"
+                                        className={`w-full text-left rounded-xl border-2 p-5 transition-all ${selectedPsp === "STRIPE"
                                                 ? "border-[#0df20d] bg-[#0df20d]/5"
                                                 : "border-[#2a2a2a] bg-[#0a0a0a] hover:border-[#0df20d]/40"
-                                        } cursor-pointer`}
+                                            } cursor-pointer`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                                                selectedPsp === "STRIPE" ? "border-[#0df20d]" : "border-gray-600"
-                                            }`}>
+                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${selectedPsp === "STRIPE" ? "border-[#0df20d]" : "border-gray-600"
+                                                }`}>
                                                 {selectedPsp === "STRIPE" && (
                                                     <div className="w-2.5 h-2.5 rounded-full bg-[#0df20d]" />
                                                 )}

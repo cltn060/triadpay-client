@@ -246,7 +246,7 @@ function AffiliateSignUpContent() {
                 {/* Secured by badge */}
                 <div className="text-center mt-6">
                     <p className="text-gray-600 text-xs">
-                        Secured by <span className="text-gray-400 font-bold">Caruma</span>
+                        Secured by <span className="text-gray-400 font-bold">Triadpay</span>
                     </p>
                 </div>
             </div>
