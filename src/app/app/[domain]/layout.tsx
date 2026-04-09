@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { StoreGate } from "@/components/store/StoreGate";
 
 export const metadata: Metadata = {
-    title: "Dashboard | Triadpay",
-    description: "Triadpay Merchant Dashboard - Manage payments, products, and payouts.",
+    title: "Dashboard | Caruma",
+    description: "Caruma Merchant Dashboard - Manage payments, products, and payouts.",
 };
 
 export default async function DomainLayout({

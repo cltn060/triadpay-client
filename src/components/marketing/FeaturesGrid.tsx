@@ -144,7 +144,7 @@ export function FeaturesGrid() {
                                 <code>
                                     <span className="text-purple-400">const</span> payment ={" "}
                                     <span className="text-purple-400">await</span>{" "}
-                                    triadpay.charges.create({"{\n"}
+                                    caruma.charges.create({"{\n"}
                                     {"  "}amount: <span className="text-primary">2000</span>,
                                     {"\n"}
                                     {"  "}currency:{" "}

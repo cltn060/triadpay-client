@@ -90,7 +90,7 @@ export default clerkMiddleware(async (auth, req) => {
         }
 
         // In multi-tenant mode, no authenticated user should access protected routes
-        // on the root domain — they must use their subdomain (e.g. slug.triadpay.com).
+        // on the root domain — they must use their subdomain (e.g. slug.triadpay.tech).
         // Redirect them to the root, which will route them to onboarding or their subdomain.
         if (isMultiTenant && url.pathname !== "/") {
             return NextResponse.redirect(new URL("/", req.url));
@@ -141,7 +141,7 @@ export default clerkMiddleware(async (auth, req) => {
     );
 });
 // NOTE: No satellite config needed. Clerk natively shares sessions
-// across *.triadpay.com via root-level cookie scoped to .triadpay.com.
+// across *.triadpay.tech via root-level cookie scoped to .triadpay.tech.
 
 export const config = {
     matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],

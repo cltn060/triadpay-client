@@ -125,7 +125,7 @@ function AffiliatePageContent() {
     }
 
     // --- The Marketing Page (both modes) ---
-    const displayName = isTenantMode && store ? store.name : "Triadpay";
+    const displayName = isTenantMode && store ? store.name : "Caruma";
     const signUpUrl = isTenantMode
         ? `/sign-up/affiliate?store=${sellerRef}`
         : `/sign-up/affiliate`;

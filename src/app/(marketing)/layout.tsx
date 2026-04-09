@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Triadpay - The Financial Engine",
+    title: "Caruma - The Financial Engine",
     description:
         "Premium white-label payment infrastructure for merchants. Seamless split payments, global payouts, and total brand control.",
 };

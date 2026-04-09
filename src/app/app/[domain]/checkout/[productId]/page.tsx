@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "@/providers/theme-provider";
 import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher";
 import { useDragScroll } from "@/hooks/useDragScroll";
-import { ShieldCheck, RotateCcw, Truck, Headset, type LucideIcon } from "lucide-react";
+import { ShieldCheck, RotateCcw, Truck, Headset, Ticket, Timer, type LucideIcon } from "lucide-react";
 
 // ─── Badge Icon Map ─────────────────────────────────────────────────────────
 const BADGE_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
@@ -237,6 +237,47 @@ function CheckoutContent({ productId }: { productId: string }) {
     const [paymentResult, setPaymentResult] = useState<{ status: "success" | "failed" | "pending"; paymentId?: string } | null>(null);
     const [submitAttempt, setSubmitAttempt] = useState(0);
 
+    // ─── NEW: Complexity Additions ──────────────────────────────────────────
+    const [timeLeft, setTimeLeft] = useState(600); // 10 minutes urgency timer
+    const [couponCode, setCouponCode] = useState("");
+    const [isCouponApplied, setIsCouponApplied] = useState(false);
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [discountAmount, setDiscountAmount] = useState(0);
+
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+        const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+        return () => clearInterval(timer);
+    }, [timeLeft]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    const handleApplyCoupon = () => {
+        if (!couponCode) return;
+        setIsApplyingCoupon(true);
+        // Simulate API call to validate coupon
+        setTimeout(() => {
+            if (couponCode.toUpperCase() === "TRIAD10") {
+                const basePrice = product?.price || 0;
+                setDiscountAmount(basePrice * 0.1);
+                setIsCouponApplied(true);
+                setError(null);
+            } else {
+                setError("Invalid coupon code. Try 'TRIAD10'");
+                setIsCouponApplied(false);
+            }
+            setIsApplyingCoupon(false);
+        }, 800);
+    };
+
+    const priceDollars = product ? product.price.toFixed(2) : "0.00";
+    const totalDollarsDisplay = Math.max(0, Number(priceDollars) - discountAmount).toFixed(2);
+    // ───────────────────────────────────────────────────────────────────────
+
     // Stripe client secret (created on mount for Stripe checkouts)
     const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
     // Stripe PaymentIntent ID + externalReference from prepareCheckout
@@ -449,10 +490,6 @@ function CheckoutContent({ productId }: { productId: string }) {
         return <PaymentResult status={paymentResult.status} paymentId={paymentResult.paymentId} onReset={() => { setPaymentResult(null); setIsProcessing(false); setSubmitAttempt(0); }} />;
     }
 
-    // product.price is stored in dollars
-    const priceDollars = product.price.toFixed(2);
-    const totalDollars = priceDollars;
-
     const badges = checkoutConfig?.trustBadgesEnabled && checkoutConfig.trustBadges ? checkoutConfig.trustBadges : [];
 
     const themeColor = (product as any).themeColor ?? "#0df20d";
@@ -508,7 +545,7 @@ function CheckoutContent({ productId }: { productId: string }) {
                                 {product.storeName}
                             </span>
                             <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wide">
-                                triadpay.com
+                                caruma.com
                             </span>
                         </div>
                     </div>
@@ -519,6 +556,14 @@ function CheckoutContent({ productId }: { productId: string }) {
                 </div>
             </nav>
 
+            {/* ─── Urgency Timer Banner ─── */}
+            <div className="w-full bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/20 py-2 px-4 transition-colors">
+                <div className="max-w-5xl mx-auto flex items-center justify-center gap-2 text-[11px] font-bold text-amber-700 dark:text-amber-500/80 uppercase tracking-widest">
+                    <Timer className="w-3.5 h-3.5" />
+                    <span>Special Offer Ends In: <span className="text-amber-900 dark:text-amber-400 font-mono text-xs">{formatTime(timeLeft)}</span></span>
+                </div>
+            </div>
+
             <main className="w-full max-w-5xl mx-auto px-4 py-10 md:py-16">
 
 
@@ -528,7 +573,29 @@ function CheckoutContent({ productId }: { productId: string }) {
                     {/* ─── Left Column: Product & Trust ─── */}
                     <div className="flex flex-col gap-8 order-2 lg:order-1 mt-10 lg:mt-0">
                         {/* ─── Product Card & Gallery ─── */}
-                        <div className="bg-white dark:bg-[#141414] transition-colors rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-primary/5 border border-gray-200 hover:border-gray-300 dark:border-primary/10 dark:hover:border-primary/30 p-6 relative overflow-hidden group duration-500">
+                        <div className="bg-white dark:bg-[#141414] transition-colors rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-primary/5 border border-gray-200 hover:border-gray-300 dark:border-primary/10 dark:hover:border-primary/30 p-6 md:p-8 relative overflow-hidden group duration-500">
+
+                            {/* ─── Persistent Order Summary (NEW) ─── */}
+                            <div className="mb-8 p-5 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 space-y-3">
+                                <div className="flex justify-between text-xs font-semibold title-font uppercase tracking-wider text-gray-500">
+                                    <span>Summary</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                                    <span className="text-gray-900 dark:text-white font-medium">${priceDollars}</span>
+                                </div>
+                                {isCouponApplied && (
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-primary font-medium">Discount (10%)</span>
+                                        <span className="text-primary font-medium">-${discountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="pt-3 border-t border-gray-100 dark:border-white/5 flex justify-between items-center text-xl font-black">
+                                    <span className="text-gray-900 dark:text-white">Total</span>
+                                    <span className="text-gray-900 dark:text-white transform transition-all hover:scale-105">${totalDollarsDisplay}</span>
+                                </div>
+                            </div>
+
                             <div className="absolute top-0 right-0 w-64 h-64 opacity-0 dark:opacity-100 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-primary/10 transition-colors pointer-events-none" />
                             {/* Gallery section */}
                             {(product.coverImageUrl || (product.mediaUrls && product.mediaUrls.length > 0)) && (
@@ -605,7 +672,35 @@ function CheckoutContent({ productId }: { productId: string }) {
                     </div>
 
                     {/* ─── Right Column: Payment Form ─── */}
-                    <div className="order-1 lg:order-2">
+                    <div className="order-1 lg:order-2 space-y-6">
+
+                        {/* Shared Promo Code Section */}
+                        <div className="p-6 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm space-y-4">
+                            <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Ticket className="w-3.5 h-3.5" />
+                                Promotional Offer
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    placeholder="Enter Code"
+                                    disabled={isCouponApplied}
+                                    className="flex-1 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:ring-2 focus:ring-primary/20 focus:border-primary/50 text-sm py-3 px-4 outline-none transition-all"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleApplyCoupon}
+                                    disabled={isCouponApplied || isApplyingCoupon || !couponCode}
+                                    className={`px-5 py-3 rounded-xl text-xs font-bold transition-all uppercase flex items-center justify-center min-w-[90px] ${isCouponApplied ? "bg-green-500 text-white" : "bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-90"}`}
+                                >
+                                    {isApplyingCoupon ? (
+                                        <div className="w-4 h-4 border-2 border-white/20 border-t-white dark:border-black/20 dark:border-t-black rounded-full animate-spin"></div>
+                                    ) : isCouponApplied ? "Applied" : "Apply"}
+                                </button>
+                            </div>
+                        </div>
 
                         {/* Payment Elements */}
                         <div className="bg-white dark:bg-[#141414] p-6 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-primary/5 border border-gray-200 hover:border-gray-300 dark:border-primary/10 dark:hover:border-primary/30 transition-colors relative overflow-hidden group duration-500">
@@ -647,7 +742,7 @@ function CheckoutContent({ productId }: { productId: string }) {
                                     }}
                                 >
                                     <StripePaymentForm
-                                        totalDollars={totalDollars}
+                                        totalDollars={totalDollarsDisplay}
                                         isProcessing={isProcessing}
                                         setIsProcessing={setIsProcessing}
                                         onResult={setPaymentResult}
@@ -722,7 +817,7 @@ function CheckoutContent({ productId }: { productId: string }) {
                                     {/* ─── Mercado Pago Custom CTA Button ─── */}
                                     <div className="mt-4">
                                         <CheckoutSubmitButton
-                                            totalDollars={totalDollars}
+                                            totalDollars={totalDollarsDisplay}
                                             isProcessing={isProcessing}
                                             isDisabled={!mpReady}
                                             onClick={handleMPPayment}
@@ -743,7 +838,7 @@ function CheckoutContent({ productId }: { productId: string }) {
 
                 {/* ─── Footer ─── */}
                 <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400 dark:text-gray-500 transition-colors">
-                    <p>Secured by <span className="text-gray-600 dark:text-gray-400 font-bold">{activePsp === "STRIPE" ? "Stripe" : activePsp === "MERCADO_PAGO" ? "Mercado Pago" : "Triadpay"}</span></p>
+                    <p>Secured by <span className="text-gray-600 dark:text-gray-400 font-bold">{activePsp === "STRIPE" ? "Stripe" : activePsp === "MERCADO_PAGO" ? "Mercado Pago" : "Caruma"}</span></p>
                     <span className="flex items-center gap-1"><span className="material-icons text-[14px]">lock</span> SSL Encrypted</span>
                 </div>
             </main>
