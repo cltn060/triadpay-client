@@ -139,7 +139,7 @@ export function SettingsCheckoutPreview() {
                             </span>
                             Powered by{" "}
                             <span className="text-gray-300 font-semibold">
-                                Caruma
+                                Triadpay
                             </span>
                         </p>
                     </div>

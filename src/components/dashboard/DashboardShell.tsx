@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import { ThemeToggle } from "../ThemeToggle";
 
 const SidebarContext = createContext<{ closeSidebar: () => void }>({
-    closeSidebar: () => {},
+    closeSidebar: () => { },
 });
 
 /** Call this inside sidebar nav links to close the drawer on mobile */
@@ -54,7 +54,7 @@ export function DashboardShell({
                                 <span className="material-icons text-xl">menu</span>
                             </button>
                             <div>
-                                <p className="text-sm font-semibold text-white">Caruma</p>
+                                <p className="text-sm font-semibold text-white">Triadpay</p>
                                 <p className="text-xs uppercase tracking-[0.35em] text-text-grey">Dashboard</p>
                             </div>
                         </div>

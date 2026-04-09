@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 // Traffic cop: routes authenticated users to the correct dashboard.
-// In multi-tenant mode, this fires on subdomain requests (e.g. slug.triadpay.tech/).
+// In multi-tenant mode, this fires on subdomain requests (e.g. slug.triadpay.com/).
 // Unauthenticated users are sent to sign-in.
 export default async function TenantRootPage() {
     const user = await currentUser();
