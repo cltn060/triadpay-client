@@ -200,7 +200,7 @@ export default function WLSettingsPage() {
         if (stripeCreds && store?.pspStatus !== "CONNECTED" && !stripeProgress && !isCheckingStatus) {
             handleCheckProgress();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stripeCreds, store?.pspStatus]);
 
     // ── Preset colors ──────────────────────────────────────────────────
@@ -676,7 +676,7 @@ export default function WLSettingsPage() {
 
                                 <div className="space-y-1.5">
                                     <label className="text-xs text-text-grey uppercase tracking-widest font-semibold">
-                                        Triadpay Fee (%)
+                                        Caruma Fee (%)
                                     </label>
                                     <div className="relative">
                                         <input

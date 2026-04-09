@@ -8,8 +8,8 @@ import { ReactNode } from "react";
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 // NOTE: No satellite config needed. Clerk natively shares sessions
-// across *.triadpay.tech via root-level cookie scoped to .triadpay.tech.
-// Satellite mode is only for cross-root-domain auth (e.g. triadpay.tech ↔ another-brand.com).
+// across *.caruma.tech via root-level cookie scoped to .caruma.tech.
+// Satellite mode is only for cross-root-domain auth (e.g. caruma.tech ↔ another-brand.com).
 
 export default function ConvexClientProvider({ children }: { children: ReactNode }) {
     return (

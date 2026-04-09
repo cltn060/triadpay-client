@@ -535,14 +535,14 @@
             "paidTransactions": "paid",
             "totalRevenue": "Total Revenue",
             "platformEarnings": "Platform Earnings",
-            "triadpaysCut": "Triadpay's cut",
+            "triadpaysCut": "Caruma's cut",
             "wlOwnerEarnings": "WL Owner Earnings",
             "acrossAllStores": "Across all stores",
             "loading": "Loading stats..."
         },
         "Fees": {
             "title": "Platform Fees",
-            "description": "Configure Triadpay's fee on every transaction. Per-store overrides take precedence over the global default.",
+            "description": "Configure Caruma's fee on every transaction. Per-store overrides take precedence over the global default.",
             "colType": "Type",
             "colStore": "Store",
             "colFeePercent": "Fee %",
