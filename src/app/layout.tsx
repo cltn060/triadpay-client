@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Triadpay",
+  title: "Caruma",
   description: "Your Multi-Tenant SaaS Platform",
   icons: {
     icon: "/favicon.ico",

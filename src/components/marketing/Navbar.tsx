@@ -18,7 +18,7 @@ export function Navbar() {
                             <span className="material-icons text-black text-base font-bold">bolt</span>
                         </div>
                         <div>
-                            <p className="text-base font-semibold tracking-tight text-white">Triadpay</p>
+                            <p className="text-base font-semibold tracking-tight text-white">Caruma</p>
                             <p className="text-xs uppercase text-text-grey tracking-[0.35em]">Payments + Payouts</p>
                         </div>
                     </Link>
