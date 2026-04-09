@@ -526,10 +526,11 @@ function CheckoutContent({ productId }: { productId: string }) {
             <nav className="w-full border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] transition-colors sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                        <div className={`w-8 h-8 rounded-lg transition-colors flex items-center justify-center overflow-hidden flex-shrink-0 ${(product as any).storeLogoUrl
+                        <div className={`w-8 h-8 rounded-lg transition-colors flex items-center justify-center overflow-hidden flex-shrink-0 ${
+                            (product as any).storeLogoUrl
                                 ? (product as any).storeLogoHasWhiteBg ? "bg-white border border-gray-200 dark:border-white/10" : "bg-transparent"
                                 : "bg-gray-900 dark:bg-white"
-                            }`}>
+                        }`}>
                             {(product as any).storeLogoUrl ? (
                                 <img
                                     src={(product as any).storeLogoUrl}
@@ -600,7 +601,7 @@ function CheckoutContent({ productId }: { productId: string }) {
                             {/* Gallery section */}
                             {(product.coverImageUrl || (product.mediaUrls && product.mediaUrls.length > 0)) && (
                                 <div className="mb-6 flex flex-col gap-4 -mt-6 -mx-6">
-                                    <div
+                                    <div 
                                         onClick={() => {
                                             const allImages = [product.coverImageUrl, ...(product.mediaUrls || [])].filter(Boolean);
                                             if (allImages.length > 0) {
@@ -621,8 +622,8 @@ function CheckoutContent({ productId }: { productId: string }) {
 
                                     {/* Thumbnails */}
                                     {product.mediaUrls && product.mediaUrls.length > 0 && (
-                                        <div
-                                            ref={scrollRef}
+                                        <div 
+                                            ref={scrollRef} 
                                             {...events}
                                             className="flex gap-2 px-6 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                                         >
@@ -830,7 +831,7 @@ function CheckoutContent({ productId }: { productId: string }) {
                                     {ref && <input type="hidden" name="affiliateRef" value={ref} />}
                                 </div>
                             ) : null}
-
+                            
 
                         </div>
                     </div>
